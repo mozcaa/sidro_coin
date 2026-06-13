@@ -2,13 +2,13 @@ import json
 import hashlib
 import time
 import os
-
+from wallet import get_balance, is_transaction_valid
 # Nome del file in cui verrà salvata la blockchain
 CHAIN_FILE = "chain.json"
 
 # Difficoltà del Proof-of-Work.
 # Significa che l'hash valido deve iniziare con 4 zeri.
-DIFFICULTY = 4
+DIFFICULTY = 5
 
 
 def calculate_hash(block):
@@ -162,34 +162,55 @@ def is_chain_valid(chain):
 # python blockchain.py
 if __name__ == "__main__":
 
-    # Carichiamo la blockchain da file.
-    # Se non esiste, viene creata automaticamente.
+    # Carichiamo la blockchain esistente o creiamo il genesis block
     chain = load_chain()
 
-    # Creiamo una transazione di esempio.
-    # Per ora non ci sono ancora firme o wallet reali:
-    # è solo una transazione didattica.
+    # Prima transazione: SYSTEM assegna 100 SID a Tommaso
+    # Questa simula la creazione iniziale di monete
+    initial_transaction = {
+        "from": "SYSTEM",
+        "to": "Tommaso",
+        "amount": 100,
+        "currency": "SID"
+    }
+
+
+    print("Mining del blocco iniziale con 100 SID a Tommaso...")
+
+    # Controlliamo se la transazione iniziale è valida
+    if is_transaction_valid(chain, initial_transaction):
+        new_block = mine_block([initial_transaction], chain[-1])
+        chain.append(new_block)
+        save_chain(chain)
+        print("Blocco iniziale aggiunto.")
+    else:
+        print("Transazione iniziale non valida.")
+
+    # Seconda transazione: Tommaso manda 20 SID a Luca
     transaction = {
         "from": "Tommaso",
         "to": "Luca",
         "amount": 20,
         "currency": "SID"
     }
+    print("\n")
+    print("Saldo Tommaso prima:", get_balance(chain, "Tommaso"))
+    print("Saldo Luca prima:", get_balance(chain, "Luca"))
 
-    print("Mining del nuovo blocco...")
+    # Verifichiamo che Tommaso abbia abbastanza SID
+    if is_transaction_valid(chain, transaction):
+        print("Transazione valida. Mining del nuovo blocco...")
 
-    # Creiamo un nuovo blocco contenente la transazione.
-    # chain[-1] indica l'ultimo blocco della blockchain.
-    new_block = mine_block([transaction], chain[-1])
+        new_block = mine_block([transaction], chain[-1])
+        chain.append(new_block)
+        save_chain(chain)
 
-    # Aggiungiamo il nuovo blocco alla blockchain
-    chain.append(new_block)
+        print("Blocco aggiunto!")
+        print("Hash:", new_block["hash"])
+    else:
+        print("Transazione rifiutata: saldo insufficiente.")
 
-    # Salviamo la blockchain aggiornata nel file chain.json
-    save_chain(chain)
-
-    print("Blocco aggiunto!")
-    print("Hash:", new_block["hash"])
-
-    # Verifichiamo se la blockchain è ancora valida
+    print("Saldo Tommaso dopo:", get_balance(chain, "Tommaso"))
+    print("Saldo Luca dopo:", get_balance(chain, "Luca"))
+    print("\n")
     print("Blockchain valida:", is_chain_valid(chain))

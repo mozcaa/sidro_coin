@@ -1,0 +1,70 @@
+[
+    {
+        "index": 0,
+        "timestamp": 1781371981.6475248,
+        "transactions": [],
+        "previous_hash": "0",
+        "nonce": 0,
+        "hash": "1458de55db93b244a891a62219527f12e28713607360be8c71676a03747319a3"
+    },
+    {
+        "index": 1,
+        "timestamp": 1781371991.3421154,
+        "transactions": [
+            {
+                "from": "SYSTEM",
+                "to": "Tommaso",
+                "amount": 100,
+                "currency": "SID"
+            }
+        ],
+        "previous_hash": "1458de55db93b244a891a62219527f12e28713607360be8c71676a03747319a3",
+        "nonce": 1462035,
+        "hash": "00000a15ca452c72e3092cc614e929a44dab3958f837c0efe7e6dbe8234d9a58"
+    },
+    {
+        "index": 2,
+        "timestamp": 1781371999.8591766,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Luca",
+                "amount": 20,
+                "currency": "SID"
+            }
+        ],
+        "previous_hash": "00000a15ca452c72e3092cc614e929a44dab3958f837c0efe7e6dbe8234d9a58",
+        "nonce": 1292581,
+        "hash": "0000059892c294c9ad8edf2dd7d2664f67c0397c52f8b7ec2e6900d6be136e62"
+    },
+    {
+        "index": 3,
+        "timestamp": 1781372193.2843018,
+        "transactions": [
+            {
+                "from": "SYSTEM",
+                "to": "Tommaso",
+                "amount": 100,
+                "currency": "SID"
+            }
+        ],
+        "previous_hash": "0000059892c294c9ad8edf2dd7d2664f67c0397c52f8b7ec2e6900d6be136e62",
+        "nonce": 1590956,
+        "hash": "000000f21e88fcd51ccedcb730d3afea9ef966bc7ab1f1109b92ed147901e0d0"
+    },
+    {
+        "index": 4,
+        "timestamp": 1781372203.8730109,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Luca",
+                "amount": 20,
+                "currency": "SID"
+            }
+        ],
+        "previous_hash": "000000f21e88fcd51ccedcb730d3afea9ef966bc7ab1f1109b92ed147901e0d0",
+        "nonce": 1600645,
+        "hash": "00000fccd3be535adc8443a2315f37aaa22f5514fb076a6eef860842befec231"
+    }
+]
