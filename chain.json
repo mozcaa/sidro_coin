@@ -1,0 +1,48 @@
+[
+    {
+        "index": 0,
+        "timestamp": 1781471683.8712392,
+        "transactions": [],
+        "previous_hash": "0",
+        "nonce": 0,
+        "hash": "22010f7eb34897ae6723c0e248cb893e9a1b86a7946b22b7d353dd0f65faabf5"
+    },
+    {
+        "index": 1,
+        "timestamp": 1781471683.873795,
+        "transactions": [
+            {
+                "from": "SYSTEM",
+                "to": "Tommaso",
+                "amount": 100,
+                "currency": "SID",
+                "reason": "INITIAL_BALANCE"
+            }
+        ],
+        "previous_hash": "22010f7eb34897ae6723c0e248cb893e9a1b86a7946b22b7d353dd0f65faabf5",
+        "nonce": 38307,
+        "hash": "000034cdc78bfec6f7502a5cbede93d41a05e6ce2df0e37af62ab823912c0cd4"
+    },
+    {
+        "index": 2,
+        "timestamp": 1781471684.4966657,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Luca",
+                "amount": 20,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5001",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "000034cdc78bfec6f7502a5cbede93d41a05e6ce2df0e37af62ab823912c0cd4",
+        "nonce": 50713,
+        "hash": "000059c93fe81c36b69a84260257732093b5be2b664c917c457abd6f92be0ecd"
+    }
+]
