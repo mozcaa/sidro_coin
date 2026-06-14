@@ -54,3 +54,21 @@ def is_transaction_valid(chain, transaction):
 
     # La transazione è valida solo se il mittente ha abbastanza soldi
     return sender_balance >= amount
+
+def has_initial_funds(chain, user):
+    """
+    Controlla se un utente ha già ricevuto il saldo iniziale da SYSTEM.
+    Serve per evitare che il programma assegni 100 SID ogni volta che viene riavviato.
+    """
+
+    for block in chain:
+        for transaction in block["transactions"]:
+
+            if (
+                transaction["from"] == "SYSTEM"
+                and transaction["to"] == user
+                and transaction.get("reason") == "INITIAL_BALANCE"
+            ):
+                return True
+
+    return False

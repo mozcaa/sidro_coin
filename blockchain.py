@@ -1,39 +1,12 @@
 import json
-import hashlib
 import time
 import os
-from wallet import get_balance, is_transaction_valid
-# Nome del file in cui verrà salvata la blockchain
-CHAIN_FILE = "chain.json"
 
-# Difficoltà del Proof-of-Work.
-# Significa che l'hash valido deve iniziare con 4 zeri.
-DIFFICULTY = 5
-
-
-def calculate_hash(block):
-    """
-    Calcola l'hash SHA-256 di un blocco.
-
-    L'hash serve come "impronta digitale" del blocco.
-    Se anche un solo dato del blocco cambia, cambia anche l'hash.
-    """
-
-    # Facciamo una copia del blocco per non modificare quello originale
-    block_copy = block.copy()
-
-    # Rimuoviamo il campo "hash" prima di calcolare l'hash.
-    # Questo è necessario perché l'hash deve dipendere dal contenuto del blocco,
-    # non da sé stesso.
-    block_copy.pop("hash", None)
-
-    # Convertiamo il blocco in una stringa JSON ordinata.
-    # sort_keys=True garantisce che l'ordine dei campi sia sempre lo stesso,
-    # così lo stesso blocco produce sempre lo stesso hash.
-    block_string = json.dumps(block_copy, sort_keys=True)
-
-    # Calcoliamo l'hash SHA-256 della stringa e lo restituiamo in formato esadecimale
-    return hashlib.sha256(block_string.encode()).hexdigest()
+from config import CHAIN_FILE, DIFFICULTY, CURRENCY, MINING_REWARD
+from utils import calculate_hash
+from miner import mine_block
+from wallet import get_balance, is_transaction_valid, has_initial_funds
+from mempool import load_mempool, add_transaction_to_mempool, clear_mempool
 
 
 def create_genesis_block():
@@ -85,43 +58,6 @@ def save_chain(chain):
         json.dump(chain, file, indent=4)
 
 
-def mine_block(transactions, previous_block):
-    """
-    Crea un nuovo blocco valido tramite Proof-of-Work.
-
-    Il mining consiste nel provare tanti valori di nonce
-    finché l'hash del blocco non inizia con un certo numero di zeri.
-    """
-
-    # Il nonce parte da 0 e viene aumentato finché non troviamo un hash valido
-    nonce = 0
-
-    while True:
-        # Creiamo un blocco candidato
-        block = {
-            "index": previous_block["index"] + 1,      # Numero del nuovo blocco
-            "timestamp": time.time(),                  # Momento di creazione
-            "transactions": transactions,              # Transazioni inserite nel blocco
-            "previous_hash": previous_block["hash"],   # Hash del blocco precedente
-            "nonce": nonce                             # Valore tentato per il mining
-        }
-
-        # Calcoliamo l'hash del blocco candidato
-        block_hash = calculate_hash(block)
-
-        # Controlliamo se l'hash rispetta la difficoltà richiesta
-        # Esempio: con DIFFICULTY = 4, l'hash deve iniziare con "0000"
-        if block_hash.startswith("0" * DIFFICULTY):
-            # Se l'hash è valido, lo aggiungiamo al blocco
-            block["hash"] = block_hash
-
-            # Restituiamo il blocco minato
-            return block
-
-        # Se l'hash non è valido, proviamo con un nonce successivo
-        nonce += 1
-
-
 def is_chain_valid(chain):
     """
     Verifica se la blockchain è valida.
@@ -171,46 +107,82 @@ if __name__ == "__main__":
         "from": "SYSTEM",
         "to": "Tommaso",
         "amount": 100,
-        "currency": "SID"
+        "currency": CURRENCY,
+        "reason": "INITIAL_BALANCE"
     }
 
+    if not has_initial_funds(chain, "Tommaso"):
+     
+     print("Mining del blocco iniziale con 100 SID a Tommaso...")
 
-    print("Mining del blocco iniziale con 100 SID a Tommaso...")
+     # Controlliamo se la transazione iniziale è valida
+     if is_transaction_valid(chain, initial_transaction):
+         new_block, mining_stats = mine_block([initial_transaction], chain[-1])
+         chain.append(new_block)
+         save_chain(chain)
+         print("Blocco iniziale aggiunto.")
+         print("Tentativi:", mining_stats["attempts"])
+         print("Tempo mining:", round(mining_stats["mining_time"], 4), "secondi")
+         print("Modalità mining:", mining_stats["mining_mode"])
+     else:
+         print("Transazione iniziale non valida.")
 
-    # Controlliamo se la transazione iniziale è valida
-    if is_transaction_valid(chain, initial_transaction):
-        new_block = mine_block([initial_transaction], chain[-1])
-        chain.append(new_block)
-        save_chain(chain)
-        print("Blocco iniziale aggiunto.")
     else:
-        print("Transazione iniziale non valida.")
+         print("Tommaso ha gia' ricevuto il saldo iniziale")
 
     # Seconda transazione: Tommaso manda 20 SID a Luca
     transaction = {
-        "from": "Tommaso",
-        "to": "Luca",
-        "amount": 20,
-        "currency": "SID"
+      "from": "Tommaso",
+      "to": "Luca",
+      "amount": 20,
+      "currency": CURRENCY
     }
-    print("\n")
+
+    print()
     print("Saldo Tommaso prima:", get_balance(chain, "Tommaso"))
     print("Saldo Luca prima:", get_balance(chain, "Luca"))
 
-    # Verifichiamo che Tommaso abbia abbastanza SID
     if is_transaction_valid(chain, transaction):
-        print("Transazione valida. Mining del nuovo blocco...")
-
-        new_block = mine_block([transaction], chain[-1])
-        chain.append(new_block)
-        save_chain(chain)
-
-        print("Blocco aggiunto!")
-        print("Hash:", new_block["hash"])
+         add_transaction_to_mempool(transaction)
+         print("Transazione valida aggiunta alla mempool.")
     else:
-        print("Transazione rifiutata: saldo insufficiente.")
+         print("Transazione rifiutata: saldo insufficiente.")
+
+    pending_transactions = load_mempool()
+
+    if len(pending_transactions) > 0:
+          print("Transazioni in attesa:", len(pending_transactions))
+          print("Mining del nuovo blocco con le transazioni della mempool...")
+
+          miner_name = "Miner5001"
+
+          reward_transaction = {
+              "from": "SYSTEM",
+               "to": miner_name,
+               "amount": MINING_REWARD,
+               "currency": CURRENCY,
+               "reason": "MINING_REWARD"
+           }
+
+          transactions_to_mine = pending_transactions + [reward_transaction]    
+
+          new_block, mining_stats = mine_block(transactions_to_mine, chain[-1])
+          chain.append(new_block)
+          save_chain(chain)
+
+          clear_mempool()
+
+          print("Blocco aggiunto!")
+          print("Hash:", new_block["hash"])
+          print("Tentativi:", mining_stats["attempts"])
+          print("Tempo mining:", round(mining_stats["mining_time"], 4), "secondi")
+          print("Modalità mining:", mining_stats["mining_mode"])
+          print("Mempool svuotata.")
+    else:
+          print("Nessuna transazione da minare.")
 
     print("Saldo Tommaso dopo:", get_balance(chain, "Tommaso"))
     print("Saldo Luca dopo:", get_balance(chain, "Luca"))
-    print("\n")
+    print("Saldo Miner5001 dopo:", get_balance(chain, "Miner5001"))
+    print()
     print("Blockchain valida:", is_chain_valid(chain))
