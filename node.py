@@ -46,6 +46,35 @@ app = Flask(__name__)
 # Qui salveremo gli URL degli altri nodi, es: {"http://localhost:5002"}
 PEERS = set()
 
+# ==========================================
+# 2.5 FUNZIONI DI BROADCAST (PASSAPAROLA)
+# ==========================================
+
+def broadcast_transaction(tx_data):
+    """
+    Quando questo nodo riceve una NUOVA transazione valida, usa questa funzione
+    per inoltrarla a tutti i suoi vicini nella rubrica (PEERS).
+    """
+    for peer in PEERS:
+        try:
+            # Inviamo i dati all'endpoint /transactions/receive dei nodi vicini
+            requests.post(f"{peer}/transactions/receive", json=tx_data, timeout=2)
+        except requests.exceptions.RequestException:
+            # Se un vicino è spento, la richiesta fallisce. Lo ignoriamo e andiamo avanti.
+            pass
+
+
+def broadcast_block(block):
+    """
+    Quando questo nodo mina con successo un NUOVO blocco, usa questa funzione
+    per "urlarlo" immediatamente a tutta la rete.
+    """
+    for peer in PEERS:
+        try:
+            # Inviamo il blocco intero all'endpoint /blocks/receive dei nodi vicini
+            requests.post(f"{peer}/blocks/receive", json={"block": block}, timeout=2)
+        except requests.exceptions.RequestException:
+            pass
 
 # ==========================================
 # 3. ENDPOINT API (Le interfacce del nodo)
@@ -97,15 +126,46 @@ def new_transaction():
     # Aggiungiamo la valuta se chi ha fatto la richiesta si è dimenticato di metterla
     tx_data["currency"] = config.CURRENCY
     
-    # 2. Validazione: il mittente ha i soldi?
+# 2. Validazione: il mittente ha i soldi?
     chain = load_chain()
     if is_transaction_valid(chain, tx_data):
         # Se sì, la parcheggiamo nella mempool locale del nodo
         add_transaction_to_mempool(tx_data)
-        return jsonify({"message": f"Transazione aggiunta alla mempool del nodo {PORT}."}), 201
+        
+        # --- AGGIUNTA PER IL BROADCAST ---
+        # Avvisiamo subito gli altri nodi dell'esistenza di questa transazione!
+        broadcast_transaction(tx_data)
+        
+        return jsonify({"message": f"Transazione aggiunta alla mempool del nodo {PORT} e trasmessa in rete."}), 201
     else:
         # Se no (es. saldo insufficiente o truffa), il nodo rifiuta la transazione
         return jsonify({"message": "Transazione non valida o saldo insufficiente."}), 400
+    
+
+@app.route('/transactions/receive', methods=['POST'])
+def receive_transaction():
+    """ 
+    Endpoint chiamato dagli ALTRI nodi quando fanno il broadcast di una transazione.
+    """
+    tx_data = request.get_json()
+    pending_transactions = load_mempool()
+    
+    # 1. Controllo Anti-Loop: Se abbiamo già questa transazione nella nostra mempool,
+    # ci fermiamo qui per evitare che i nodi se la rimbalzino all'infinito.
+    if tx_data in pending_transactions:
+        return jsonify({"message": "Transazione già presente nella mempool."}), 200
+
+    # 2. Se è nuova, verifichiamo che sia valida secondo la nostra blockchain locale
+    chain = load_chain()
+    if is_transaction_valid(chain, tx_data):
+        add_transaction_to_mempool(tx_data)
+        
+        # 3. Effetto Domino: Facciamo da ripetitore e la inoltriamo ai nostri vicini!
+        broadcast_transaction(tx_data)
+        
+        return jsonify({"message": "Transazione ricevuta dal broadcast e salvata."}), 201
+    else:
+        return jsonify({"message": "Transazione invalida rifiutata."}), 400
 
 
 @app.route('/mine', methods=['GET'])
@@ -146,11 +206,64 @@ def mine():
     save_chain(chain)
     clear_mempool()
     
+    # Se siamo arrivati qui, il nonce è stato trovato.
+    # Aggiungiamo il blocco alla catena, salviamo su JSON e svuotiamo la mempool.
+    chain.append(new_block)
+    save_chain(chain)
+    clear_mempool()
+    
+    # --- AGGIUNTA PER IL BROADCAST ---
+    # Abbiamo vinto la gara di mining! Inviamo subito il blocco agli altri nodi.
+    broadcast_block(new_block)
+    
     return jsonify({
         "message": "Nuovo blocco minato con successo!",
         "block": new_block,
         "stats": mining_stats
     }), 200
+
+
+@app.route('/blocks/receive', methods=['POST'])
+def receive_block():
+    """
+    Endpoint chiamato dagli ALTRI nodi quando minano un blocco e lo trasmettono.
+    Questo permette di aggiornare la nostra catena in tempo reale senza aspettare.
+    """
+    data = request.get_json()
+    new_block = data.get("block")
+    
+    if not new_block:
+        return jsonify({"message": "Dati blocco mancanti"}), 400
+
+    chain = load_chain()
+    last_block = chain[-1]
+
+    # 1. Validazione di Sequenza: il nuovo blocco si aggancia perfettamente alla nostra catena?
+    # L'indice deve essere il successivo e l'hash precedente deve combaciare.
+    if new_block["index"] == last_block["index"] + 1 and new_block["previous_hash"] == last_block["hash"]:
+        
+        # Il blocco è legittimo e sincronizzato. Lo accettiamo!
+        chain.append(new_block)
+        save_chain(chain)
+        
+        # Dato che il blocco contiene le transazioni che erano in sospeso, 
+        # svuotiamo la nostra mempool per non minarle due volte.
+        clear_mempool() 
+        
+        # Facciamo da ripetitore inoltrando il blocco ad altri eventuali nodi
+        broadcast_block(new_block)
+        
+        print(f"[{PORT}] Ricevuto e accettato nuovo blocco dal broadcast! (Indice {new_block['index']})")
+        return jsonify({"message": "Blocco accettato e catena aggiornata."}), 200
+        
+    # 2. Gestione Conflitti / Ritardi
+    elif new_block["index"] > last_block["index"] + 1:
+        # Se riceviamo il blocco 10 ma noi siamo fermi al blocco 7, significa che 
+        # eravamo offline. Rifiutiamo il blocco singolo e avvisiamo che serve un /resolve.
+        return jsonify({"message": "Nodo non sincronizzato, è necessaria una sincronizzazione intera."}), 409
+    else:
+        # Se l'indice è uguale o inferiore (es. biforcazione), rifiutiamo il blocco.
+        return jsonify({"message": "Blocco rifiutato (conflitto o vecchio)."}), 400
 
 
 # ==========================================
