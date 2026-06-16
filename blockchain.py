@@ -27,7 +27,7 @@ def create_genesis_block():
 
     block = {
         "index": 0,
-        "timestamp": time.time(),
+        "timestamp": 0,
         "transactions": [],
         "previous_hash": "0",
         "nonce": 0
