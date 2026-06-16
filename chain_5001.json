@@ -1,0 +1,82 @@
+[
+    {
+        "index": 0,
+        "timestamp": 0,
+        "transactions": [],
+        "previous_hash": "0",
+        "nonce": 0,
+        "hash": "6dbf23122cb5046cc5c0c1b245c75f8e43c59ca8ffeac292715e5078e631d0c9"
+    },
+    {
+        "index": 1,
+        "timestamp": 1781632083.1345282,
+        "transactions": [
+            {
+                "from": "SYSTEM",
+                "to": "Tommaso",
+                "amount": 20.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5003",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "6dbf23122cb5046cc5c0c1b245c75f8e43c59ca8ffeac292715e5078e631d0c9",
+        "nonce": 13999,
+        "hash": "000060db55787d3ef01f2d3472ada691fc36e9f0ba6cc263483e98431bb21b3d"
+    },
+    {
+        "index": 2,
+        "timestamp": 1781633846.0870533,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Federico",
+                "amount": 5.0,
+                "currency": "SID"
+            },
+            {
+                "from": "Tommaso",
+                "to": "Federico",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5002",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "000060db55787d3ef01f2d3472ada691fc36e9f0ba6cc263483e98431bb21b3d",
+        "nonce": 3353,
+        "hash": "000099a4912b9c0f84d2180d3437fdb8380bafde9973da69ffdc26f79dcaf41e"
+    },
+    {
+        "index": 3,
+        "timestamp": 1781639421.9504128,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Federico",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5003",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "000099a4912b9c0f84d2180d3437fdb8380bafde9973da69ffdc26f79dcaf41e",
+        "nonce": 36903,
+        "hash": "00001660e935faf4161f511f846016c776462aa5331d339dfcc1af43bdeaa63c"
+    }
+]

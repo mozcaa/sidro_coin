@@ -200,11 +200,13 @@ def mine():
     # Chiamiamo la funzione che avvia il multiprocessing!
     new_block, mining_stats = run_mining(transactions_to_mine, chain[-1])
     
-    # Se siamo arrivati qui, il nonce è stato trovato.
-    # Aggiungiamo il blocco alla catena, salviamo su JSON e svuotiamo la mempool.
-    chain.append(new_block)
-    save_chain(chain)
-    clear_mempool()
+    # # 🛡️ FIX CONCORRENZA: Ricarichiamo la catena ORA per vedere se nel frattempo 
+    # # un altro processo (o noi stessi un millisecondo fa) ha già aggiunto questo indice!
+    # current_chain = load_chain()
+    # if current_chain[-1]["index"] >= new_block["index"]:
+    #     print(f"[{PORT}] Blocco già presente o rete andata avanti. Scartato.")
+    #     clear_mempool()
+    #     return jsonify({"message": "Mining annullato per evitare sdoppiamenti."}), 409
     
     # Se siamo arrivati qui, il nonce è stato trovato.
     # Aggiungiamo il blocco alla catena, salviamo su JSON e svuotiamo la mempool.
