@@ -82,6 +82,7 @@ def main():
                     data = res.json()
                     print(f"\n✅ {data['message']}")
                     print(f"Hash trovato: {data['block']['hash']}")
+                    print(f"Statistiche mining: {data['stats']}")
                 else:
                     print(f"\n⚠️ {res.json()['message']}")
             except requests.exceptions.ConnectionError:

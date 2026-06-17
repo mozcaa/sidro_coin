@@ -3,7 +3,7 @@ CHAIN_FILE = "chain.json"
 
 # Difficoltà del Proof-of-Work:
 # con 4, l'hash deve iniziare con "0000"
-DIFFICULTY = 4
+DIFFICULTY = 5
 
 # File in cui vengono salavate le transazioni prima di essere messe nella blockchain
 MEMPOOL_FILE = "mempool.json"

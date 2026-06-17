@@ -78,5 +78,193 @@
         "previous_hash": "000099a4912b9c0f84d2180d3437fdb8380bafde9973da69ffdc26f79dcaf41e",
         "nonce": 36903,
         "hash": "00001660e935faf4161f511f846016c776462aa5331d339dfcc1af43bdeaa63c"
+    },
+    {
+        "index": 4,
+        "timestamp": 1781652383.8847182,
+        "transactions": [
+            {
+                "from": "SYSTEM",
+                "to": "Federico",
+                "amount": 50.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5001",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "00001660e935faf4161f511f846016c776462aa5331d339dfcc1af43bdeaa63c",
+        "nonce": 30719,
+        "hash": "0000f39cbef1291f0c2a302b9ac2e49bbda5df489dbab07669d4b6e61a6dca09"
+    },
+    {
+        "index": 5,
+        "timestamp": 1781653411.4653454,
+        "transactions": [
+            {
+                "from": "Federico",
+                "to": "Tommaso",
+                "amount": 10.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5003",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "0000f39cbef1291f0c2a302b9ac2e49bbda5df489dbab07669d4b6e61a6dca09",
+        "nonce": 7582,
+        "hash": "00002381eca55cc92e33596f23b5082ab1fccac902ec4beec996e501775ff7af"
+    },
+    {
+        "index": 6,
+        "timestamp": 1781653773.457373,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Federico",
+                "amount": 5.0,
+                "currency": "SID"
+            },
+            {
+                "from": "Federico",
+                "to": "Tommaso",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5002",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "00002381eca55cc92e33596f23b5082ab1fccac902ec4beec996e501775ff7af",
+        "nonce": 66138,
+        "hash": "00008f7dcc6bafbaa5ee47dc9168f1d381399d0622bd6ab88ca9342defbaa0bb"
+    },
+    {
+        "index": 7,
+        "timestamp": 1781654275.3803153,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Federico",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "Federico",
+                "to": "Tommaso",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5003",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "00008f7dcc6bafbaa5ee47dc9168f1d381399d0622bd6ab88ca9342defbaa0bb",
+        "nonce": 70397,
+        "hash": "0000723529b1a42a97847ef1c657f42eaa2ae04ba207f1f3616c8c6f8d13cefe"
+    },
+    {
+        "index": 8,
+        "timestamp": 1781654571.3661938,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Luca",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5003",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "0000723529b1a42a97847ef1c657f42eaa2ae04ba207f1f3616c8c6f8d13cefe",
+        "nonce": 386056,
+        "hash": "00000051deb2ea3983bfd1ae5fcb31228ea0aae97c0fcec7e4433dd37c7f9d8f"
+    },
+    {
+        "index": 9,
+        "timestamp": 1781654632.8150175,
+        "transactions": [
+            {
+                "from": "Luca",
+                "to": "Tommaso",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5003",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "00000051deb2ea3983bfd1ae5fcb31228ea0aae97c0fcec7e4433dd37c7f9d8f",
+        "nonce": 11524977,
+        "hash": "000000bedd3235de73bf75a63711d37152a01f6159b8866c3c2d0fc44bcd28cf"
+    },
+    {
+        "index": 10,
+        "timestamp": 1781655006.3690965,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Luca",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5003",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "000000bedd3235de73bf75a63711d37152a01f6159b8866c3c2d0fc44bcd28cf",
+        "nonce": 77077508,
+        "hash": "000000516f02504c242062908b774e5619191d169a4083f7b606dd2908001774"
+    },
+    {
+        "index": 11,
+        "timestamp": 1781657498.9377933,
+        "transactions": [
+            {
+                "from": "Tommaso",
+                "to": "Luca",
+                "amount": 1.0,
+                "currency": "SID"
+            },
+            {
+                "from": "SYSTEM",
+                "to": "Miner5003",
+                "amount": 10,
+                "currency": "SID",
+                "reason": "MINING_REWARD"
+            }
+        ],
+        "previous_hash": "000000516f02504c242062908b774e5619191d169a4083f7b606dd2908001774",
+        "nonce": 14174468,
+        "hash": "000000eb65efd8d97b0b571feecbff7b7e95851b841d38e9fc76d9f046b7a4d6"
     }
 ]
