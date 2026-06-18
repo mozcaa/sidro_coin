@@ -65,7 +65,82 @@ def mine_block(transactions, previous_block):
         nonce += 1
 
 
-def parallel_worker(
+# def parallel_worker(
+#     worker_id,
+#     workers_count,
+#     transactions,
+#     previous_block,
+#     timestamp,
+#     result_queue,
+#     stop_event
+# ):
+#     """
+#     Funzione eseguita da ogni processo worker.
+
+#     Ogni worker prova una sequenza diversa di nonce.
+
+#     Esempio con 4 worker:
+#     worker 0 prova: 0, 4, 8, 12...
+#     worker 1 prova: 1, 5, 9, 13...
+#     worker 2 prova: 2, 6, 10, 14...
+#     worker 3 prova: 3, 7, 11, 15...
+
+#     In questo modo i worker non provano gli stessi nonce.
+#     """
+
+#     # Ogni worker parte da un nonce diverso.
+#     # worker 0 parte da 0, worker 1 da 1, ecc.
+#     nonce = worker_id
+
+#     # Conta quanti tentativi ha fatto questo singolo worker
+#     attempts = 0
+
+#     # Il worker continua a minare finché nessun altro worker ha trovato il blocco
+#     while not stop_event.is_set():
+
+#         # Creiamo un blocco candidato.
+#         # Tutti i worker usano stessi dati, stesso timestamp e stesso previous_hash.
+#         # Cambia solo il nonce.
+#         block = {
+#             "index": previous_block["index"] + 1,
+#             "timestamp": timestamp,
+#             "transactions": transactions,
+#             "previous_hash": previous_block["hash"],
+#             "nonce": nonce
+#         }
+
+#         # Calcoliamo l'hash del blocco candidato
+#         block_hash = calculate_hash(block)
+
+#         # Questo worker ha fatto un tentativo in più
+#         attempts += 1
+
+#         # Controlliamo se l'hash è valido
+#         if block_hash.startswith("0" * DIFFICULTY):
+
+#             # Salviamo l'hash nel blocco
+#             block["hash"] = block_hash
+
+#             # Il worker vincitore mette il risultato nella queue.
+#             # La Queue serve perché i processi separati non possono restituire
+#             # normalmente un valore con return al processo principale.
+#             result_queue.put({
+#                 "block": block,
+#                 "worker_id": worker_id,
+#                 "attempts": attempts
+#             })
+
+#             # Attiviamo l'evento di stop.
+#             # Questo dice agli altri worker: "qualcuno ha trovato il blocco, fermatevi".
+#             stop_event.set()
+
+#             return
+
+#         # Se il nonce non ha funzionato, passiamo al prossimo nonce di questo worker.
+#         # Con 4 worker, worker 0 fa 0, 4, 8, 12...
+#         nonce += workers_count
+
+def parallel_worker( # versione ottimizzata, usato batching per fixare problema dato da stop_event(oggetto condiviso dai processi)
     worker_id,
     workers_count,
     transactions,
@@ -89,18 +164,23 @@ def parallel_worker(
     """
 
     # Ogni worker parte da un nonce diverso.
-    # worker 0 parte da 0, worker 1 da 1, ecc.
     nonce = worker_id
 
     # Conta quanti tentativi ha fatto questo singolo worker
     attempts = 0
 
-    # Il worker continua a minare finché nessun altro worker ha trovato il blocco
-    while not stop_event.is_set():
+    # Usiamo un loop infinito invece di controllare stop_event.is_set() ad ogni giro.
+    while True:
+
+        # --- FIX OVERHEAD IPC ---
+        # Leggere stop_event.is_set() ad ogni singolo giro rallenta drasticamente 
+        # i processi perché richiede comunicazione col Sistema Operativo.
+        # Lo controlliamo solo ogni 10.000 tentativi:
+        if attempts % 10000 == 0:
+            if stop_event.is_set():
+                return  # Un altro worker ha vinto, ci fermiamo.
 
         # Creiamo un blocco candidato.
-        # Tutti i worker usano stessi dati, stesso timestamp e stesso previous_hash.
-        # Cambia solo il nonce.
         block = {
             "index": previous_block["index"] + 1,
             "timestamp": timestamp,
@@ -122,8 +202,6 @@ def parallel_worker(
             block["hash"] = block_hash
 
             # Il worker vincitore mette il risultato nella queue.
-            # La Queue serve perché i processi separati non possono restituire
-            # normalmente un valore con return al processo principale.
             result_queue.put({
                 "block": block,
                 "worker_id": worker_id,
@@ -136,10 +214,8 @@ def parallel_worker(
 
             return
 
-        # Se il nonce non ha funzionato, passiamo al prossimo nonce di questo worker.
-        # Con 4 worker, worker 0 fa 0, 4, 8, 12...
+        # Passiamo al prossimo nonce di questo worker.
         nonce += workers_count
-
 
 def mine_block_parallel(transactions, previous_block, workers_count):
     """

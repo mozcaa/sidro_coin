@@ -16,7 +16,7 @@ MINING_REWARD = 10
 
 # Se True, il mining usa più processi in parallelo.
 # Se False, usa il mining sequenziale normale.
-USE_PARALLEL_MINING = True
+USE_PARALLEL_MINING = False
 
 # Numero di processi worker usati nel mining parallelo.
 # Con 4 worker:
